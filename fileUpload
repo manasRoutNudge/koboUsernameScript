@@ -1,0 +1,114 @@
+(function setupBulkSignup() {
+  console.log("🚀 Bulk signup script loaded (Row Select mode)");
+
+  // === UI: File Picker ===
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = ".csv";
+  fileInput.style.position = "fixed";
+  fileInput.style.top = "10px";
+  fileInput.style.left = "10px";
+  fileInput.style.zIndex = 9999;
+  document.body.appendChild(fileInput);
+
+  // === UI: Row Selector (hidden until CSV loads) ===
+  const rowInput = document.createElement("input");
+  rowInput.type = "number";
+  rowInput.placeholder = "Row #";
+  rowInput.min = 1;
+  rowInput.style.position = "fixed";
+  rowInput.style.top = "40px";
+  rowInput.style.left = "10px";
+  rowInput.style.zIndex = 9999;
+  rowInput.style.width = "80px";
+  rowInput.style.display = "none"; // hidden initially
+  document.body.appendChild(rowInput);
+
+  const fillBtn = document.createElement("button");
+  fillBtn.innerText = "📝 Fill Row";
+  fillBtn.style.position = "fixed";
+  fillBtn.style.top = "40px";
+  fillBtn.style.left = "100px";
+  fillBtn.style.zIndex = 9999;
+  fillBtn.style.padding = "5px 10px";
+  fillBtn.style.background = "#2196F3";
+  fillBtn.style.color = "white";
+  fillBtn.style.border = "none";
+  fillBtn.style.borderRadius = "5px";
+  fillBtn.style.cursor = "pointer";
+  fillBtn.style.display = "none"; // hidden initially
+  document.body.appendChild(fillBtn);
+
+  console.log("📂 File picker added (top-left corner)");
+
+  let rows = [];
+  let headers = [];
+
+  // === File Upload Handler ===
+  fileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    console.log("📄 File selected:", file.name);
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      console.log("📥 File loaded, parsing CSV...");
+      const text = e.target.result;
+      rows = text.split("\n").map((r) => r.trim()).filter(r => r.length > 0);
+
+      headers = rows.shift().split(",").map(h => h.trim());
+      console.log("📝 Headers detected:", headers);
+
+      rowInput.style.display = "block";
+      fillBtn.style.display = "block";
+      console.log("✅ CSV ready. Enter row number and click 'Fill Row'.");
+    };
+
+    reader.readAsText(file);
+  });
+
+  // === Fill Row Handler ===
+  fillBtn.addEventListener("click", () => {
+    const rowNum = parseInt(rowInput.value, 10);
+    if (isNaN(rowNum) || rowNum < 1 || rowNum > rows.length) {
+      alert(`⚠️ Please enter a valid row number between 1 and ${rows.length}`);
+      return;
+    }
+
+    const values = rows[rowNum - 1].split(",").map(v => v.trim());
+    const row = {};
+    headers.forEach((h, i) => (row[h] = values[i]));
+
+    console.log(`➡️ Filling form with row #${rowNum}:`, row);
+
+    // === Fill Kobo form fields ===
+    function setField(selector, value) {
+      const el = document.querySelector(selector);
+      if (el) {
+        el.value = value;
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+        console.log(`   ✅ Set ${selector} = ${value}`);
+      } else {
+        console.warn(`   ⚠️ Field not found: ${selector}`);
+      }
+    }
+
+    setField("#id_name", row["Name"]);
+    setField("#id_username", row["Username"]);
+    setField("#id_email", row["Email"]);
+    setField("#id_country", "IND");  // constant
+    setField("#id_sector", "Public Administration"); // constant
+    setField("#id_organization_type", "non-profit"); // constant
+    setField("#id_organization", "The Nudge"); // constant
+    setField("#id_password1", "Nudge123"); // constant
+    setField("#id_password2", "Nudge123"); // constant
+
+    const tos = document.querySelector("#id_terms_of_service");
+    if (tos) tos.checked = true;
+
+    console.log(`⏸️ Form filled for row #${rowNum}. Please click 'Create Account' manually.`);
+    alert(`Form filled for ${row["Username"]}. Please submit manually.`);
+  });
+})();
