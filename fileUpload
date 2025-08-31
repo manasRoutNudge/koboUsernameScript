@@ -1,5 +1,5 @@
 (function setupBulkSignup() {
-  console.log("🚀 Bulk signup script loaded (Row Select mode)");
+  console.log("Bulk signup script loaded (Row Select mode)");
 
   // === UI: File Picker ===
   const fileInput = document.createElement("input");
@@ -25,7 +25,7 @@
   document.body.appendChild(rowInput);
 
   const fillBtn = document.createElement("button");
-  fillBtn.innerText = "📝 Fill Row";
+  fillBtn.innerText = "Fill Row";
   fillBtn.style.position = "fixed";
   fillBtn.style.top = "40px";
   fillBtn.style.left = "100px";
@@ -39,7 +39,7 @@
   fillBtn.style.display = "none"; // hidden initially
   document.body.appendChild(fillBtn);
 
-  console.log("📂 File picker added (top-left corner)");
+  console.log("File picker added (top-left corner)");
 
   let rows = [];
   let headers = [];
@@ -49,20 +49,20 @@
     const file = event.target.files[0];
     if (!file) return;
 
-    console.log("📄 File selected:", file.name);
+    console.log("File selected:", file.name);
 
     const reader = new FileReader();
     reader.onload = function (e) {
-      console.log("📥 File loaded, parsing CSV...");
+      console.log("File loaded, parsing CSV...");
       const text = e.target.result;
       rows = text.split("\n").map((r) => r.trim()).filter(r => r.length > 0);
 
       headers = rows.shift().split(",").map(h => h.trim());
-      console.log("📝 Headers detected:", headers);
+      console.log("Headers detected:", headers);
 
       rowInput.style.display = "block";
       fillBtn.style.display = "block";
-      console.log("✅ CSV ready. Enter row number and click 'Fill Row'.");
+      console.log("CSV ready. Enter row number and click 'Fill Row'.");
     };
 
     reader.readAsText(file);
@@ -72,7 +72,7 @@
   fillBtn.addEventListener("click", () => {
     const rowNum = parseInt(rowInput.value, 10);
     if (isNaN(rowNum) || rowNum < 1 || rowNum > rows.length) {
-      alert(`⚠️ Please enter a valid row number between 1 and ${rows.length}`);
+      alert(`Please enter a valid row number between 1 and ${rows.length}`);
       return;
     }
 
@@ -80,7 +80,7 @@
     const row = {};
     headers.forEach((h, i) => (row[h] = values[i]));
 
-    console.log(`➡️ Filling form with row #${rowNum}:`, row);
+    console.log(`Filling form with row #${rowNum}:`, row);
 
     // === Fill Kobo form fields ===
     function setField(selector, value) {
@@ -89,9 +89,9 @@
         el.value = value;
         el.dispatchEvent(new Event("input", { bubbles: true }));
         el.dispatchEvent(new Event("change", { bubbles: true }));
-        console.log(`   ✅ Set ${selector} = ${value}`);
+        console.log(`Set ${selector} = ${value}`);
       } else {
-        console.warn(`   ⚠️ Field not found: ${selector}`);
+        console.warn(`Field not found: ${selector}`);
       }
     }
 
@@ -108,7 +108,7 @@
     const tos = document.querySelector("#id_terms_of_service");
     if (tos) tos.checked = true;
 
-    console.log(`⏸️ Form filled for row #${rowNum}. Please click 'Create Account' manually.`);
+    console.log(`Form filled for row #${rowNum}. Please click 'Create Account' manually.`);
     alert(`Form filled for ${row["Username"]}. Please submit manually.`);
   });
 })();
